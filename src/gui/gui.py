@@ -387,7 +387,7 @@ class GameGUI(QWidget):
                 )
                 return
 
-        player = self.game_state.add_player(name, port, color, ip_adr, datetime.datetime.now())
+        player = self.game_state.add_player(name, port, color, ip_adr, datetime.datetime.now().strftime("%H:%M:%S"))
 
         snapshot = self.game_state.to_dict()
         self.network.send_to(msg.create_join_accept(snapshot["players"], snapshot["grid"]), addr)
