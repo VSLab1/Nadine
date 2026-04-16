@@ -78,15 +78,10 @@ class GameGUI(QWidget):
         self.game_widget = QWidget()
         game_layout = QHBoxLayout()
 
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-
         self.grid_container = QWidget()
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(1)
         self.grid_container.setLayout(self.grid_layout)
-
-        self.scroll_area.setWidget(self.grid_container)
 
         self.status_panel = QLabel()
         self.status_panel.setAlignment(Qt.AlignTop)
@@ -101,7 +96,7 @@ class GameGUI(QWidget):
         self.right_panel.addStretch()
         self.right_panel.addWidget(self.leave_button)
 
-        game_layout.addWidget(self.scroll_area)
+        game_layout.addWidget(self.grid_container, stretch=1)
         game_layout.addWidget(self.status_panel)
 
         self.game_widget.setLayout(game_layout)
@@ -121,11 +116,19 @@ class GameGUI(QWidget):
 
     def start_game(self):
         try:
-            size = self.grid_size
-            if size < 5 or size > 100:
+            input_text = self.size_input.text()
+            if input_text:
+                size = int(input_text)
+            else:
                 size = 25
         except ValueError:
             size = 25
+
+        if size % 2 == 0:
+            size += 1
+            self.logger.info(f"Grid size was even, adjusted to odd: {size}")
+
+        self.grid_size = int(size)
 
         try:
             self.my_port = int(self.port_input.text())
@@ -361,7 +364,7 @@ class GameGUI(QWidget):
         name = data["name"]
         port = data["port"]
         color = data["color"]
-        ip = addr[0]
+        ip_adr = addr[0]
 
         for player in self.game_state.players.values():
             if name.lower() == player.name.lower():
@@ -384,20 +387,15 @@ class GameGUI(QWidget):
                 )
                 return
 
-        player = self.game_state.add_player(name, port, color, ip, datetime.datetime.now())
+        player = self.game_state.add_player(name, port, color, ip_adr, datetime.datetime.now())
 
         snapshot = self.game_state.to_dict()
         self.network.send_to(msg.create_join_accept(snapshot["players"], snapshot["grid"]), addr)
 
-        recipients = self.game_state.get_network_peers(exclude_port=self.my_port)
+        recipients = self.game_state.get_network_peers(exclude_ports=[self.my_port, port])
         self.network.send_broadcast(
             msg.create_player_joined(
-                name,
-                port,
-                color,
-                ip,
-                player.x,
-                player.y
+                player.to_dict()
             ),
             recipients
         )
@@ -406,8 +404,11 @@ class GameGUI(QWidget):
         self.logger.info(f"Received join_accept with grid data")
 
         # Grid-Größe aus der Matrix berechnen
-        grid_matrix = data["grid"]
-        self.grid_size = len(grid_matrix)
+        grid_matrix = data.get("grid", [])
+        if not grid_matrix:
+            self.grid_size = 25 # Fallback
+        else:
+            self.grid_size = int(len(grid_matrix))
 
         self.build_grid()
         self.game_state = GameState(self.grid_size)
@@ -417,7 +418,7 @@ class GameGUI(QWidget):
                 name=p["name"],
                 port=p["port"],
                 color=p["color"],
-                ip_adr=p["ip"],
+                ip_adr=p["ip_adr"],
                 timestamp=["timestamp"],
                 trail=[tuple(pos) for pos in p["trail"]],
                 x=p["x"],

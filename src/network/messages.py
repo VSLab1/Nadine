@@ -37,14 +37,9 @@ def create_join_reject(reason: RejectReason):
     })
 
 
-def create_player_joined(name, port, color, ip, x, y):
+def create_player_joined(player):
     return create_message("player_joined", {
-        "name": name,
-        "color": color,
-        "port": port,
-        "ip": ip,
-        "x": x,
-        "y": y
+        "player": player
     })
 
 

@@ -14,10 +14,16 @@ class GameState:
         self.board = Battlefield(size)
         self.players = {}
 
-    def get_network_peers(self, exclude_port=None):
+    def get_network_peers(self, exclude_ports=None):
         peers=[]
+        if exclude_ports is None:
+            exclude_ports = []
+
+        if isinstance(exclude_ports, int):
+            exclude_ports = [exclude_ports]
+
         for player in self.players.values():
-            if player.port != exclude_port and player.ip_adr:
+            if player.port != exclude_ports and player.ip_adr:
                 peers.append((player.ip_adr, player.port))
         return peers
 
@@ -173,7 +179,7 @@ class GameState:
                 name=data["name"],
                 port=data["port"],
                 color=data["color"],
-                ip_adr=data["ip"],
+                ip_adr=data["ip_adr"],
                 timestamp=datetime.datetime.now(),
                 x=data["x"],
                 y=data["y"]
@@ -207,7 +213,7 @@ class GameState:
                     "y": p.y,
                     "trail": p.trail,
                     "alive": p.alive,
-                    "ip": p.ip_adr
+                    "ip_adr": p.ip_adr
                 }
                 for p in self.players.values()
             ]

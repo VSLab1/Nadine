@@ -34,6 +34,20 @@ class Player:
         self.alive = False
         self.timestamp = timestamp
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "port": self.port,
+            "color": self.color,
+            "x": self.x,
+            "y": self.y,
+            "trail": self.trail,
+            "moves": self.moves,
+            "alive": self.alive,
+            "timestamp": self.timestamp,
+            "ip_adr": self.ip_adr
+        }
+
 
 class Battlefield:
     def __init__(self, size):
