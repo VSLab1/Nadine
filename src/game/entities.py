@@ -1,6 +1,5 @@
 #entities
 
-from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 
@@ -44,7 +43,7 @@ class Player:
             "trail": self.trail,
             "moves": self.moves,
             "alive": self.alive,
-            "timestamp": self.timestamp,
+            "timestamp": self.timestamp.isoformat() if hasattr(self.timestamp, 'isoformat') else self.timestamp,
             "ip_adr": self.ip_adr
         }
 

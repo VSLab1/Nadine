@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout,
     QPushButton, QLabel, QGridLayout, QLineEdit,
     QStackedLayout, QFormLayout, QColorDialog,
-    QMessageBox
+    QMessageBox, QSizePolicy
 )
 
 from game.game import GameState
@@ -96,8 +96,7 @@ class GameGUI(QWidget):
         self.right_panel.addWidget(self.leave_button)
 
         game_layout.addWidget(self.grid_container, stretch=1)
-        game_layout.addWidget(self.status_panel)
-
+        game_layout.addLayout(self.right_panel)
         self.game_widget.setLayout(game_layout)
 
         self.stacked_layout.addWidget(self.start_widget)
@@ -233,7 +232,7 @@ class GameGUI(QWidget):
                 cell.setStyleSheet("background-color: white; border: 1px solid lightgray;")
                 cell.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
                 self.grid_layout.addWidget(cell, row, col)
-                self.cells[(row, col)] = cell
+                self.cells[(col, row)] = cell
         self.logger.debug(f"building grid successful")
 
     def clear_grid(self):
@@ -251,17 +250,17 @@ class GameGUI(QWidget):
 
             # Trail
             for (x, y) in player.trail:
-                if (y, x) in self.cells:
-                    self.cells[(y, x)].setStyleSheet(f"background-color: {color};")
+                if (x, y) in self.cells:
+                    self.cells[(x, y)].setStyleSheet(f"background-color: {color};")
 
             # Head
             if player.alive:
-                if (player.y, player.x) in self.cells:
-                    self.cells[(player.y, player.x)].setStyleSheet("background-color: black;")
+                if (player.x, player.y) in self.cells:
+                    self.cells[(player.x, player.y)].setStyleSheet("background-color: black;")
             else:
                 #dead head deep dark red
-                if (player.y, player.x) in self.cells:
-                    self.cells[(player.y, player.x)].setStyleSheet(
+                if (player.x, player.y) in self.cells:
+                    self.cells[(player.x, player.y)].setStyleSheet(
                         "background-color: darkred; border: 1px solid black;")
 
         self.logger.debug(f"rendering players successful")
@@ -386,7 +385,7 @@ class GameGUI(QWidget):
                 )
                 return
 
-        player = self.game_state.add_player(name, port, color, ip_adr, datetime.datetime.now().strftime("%H:%M:%S"))
+        player = self.game_state.add_player(name, port, color, ip_adr, datetime.datetime.now())
 
         snapshot = self.game_state.to_dict()
         self.network.send_to(msg.create_join_accept(snapshot["players"], snapshot["grid"]), addr)
@@ -417,10 +416,10 @@ class GameGUI(QWidget):
                 port=p["port"],
                 color=p["color"],
                 ip_adr=p["ip_adr"],
-                timestamp=["timestamp"],
+                timestamp=p["timestamp"],
                 trail=[tuple(pos) for pos in p["trail"]],
-                y=p["x"],
-                x=p["y"]
+                y=p["y"],
+                x=p["x"]
             )
             player.alive = p["alive"]
 
@@ -433,7 +432,7 @@ class GameGUI(QWidget):
 
     def leave_game(self):
         if self.network and self.game_state:
-            recipients = self.game_state.get_network_peers(exclude_port=self.my_port)
+            recipients = self.game_state.get_network_peers(exclude_ports=[self.my_port])
             leave_msg = msg.create_player_leave(self.my_port)
             self.network.send_broadcast(leave_msg, recipients)
 

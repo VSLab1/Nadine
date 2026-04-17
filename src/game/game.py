@@ -175,15 +175,17 @@ class GameState:
 
         elif msg_type == "player_joined":
             logger.info("player_joined msg")
+            p_data = data["player"]
+
             self.add_player(
-                name=data["name"],
-                port=data["port"],
-                color=data["color"],
-                ip_adr=data["ip_adr"],
-                moves=data["moves"],
+                name=p_data["name"],    # Jetzt p_data statt data nutzen
+                port=p_data["port"],
+                color=p_data["color"],
+                ip_adr=p_data["ip_adr"],
+                # moves=p_data["moves"], # Falls dein add_player moves unterstützt
                 timestamp=datetime.datetime.now(),
-                x=data["x"],
-                y=data["y"]
+                x=p_data["x"],
+                y=p_data["y"]
             )
 
     def get_grid_matrix(self):
@@ -210,7 +212,7 @@ class GameState:
                     "moves": p.moves,
                     "x": p.x,
                     "y": p.y,
-                    "timestamp": p.timestamp.strftime("%H:%M:%S"),
+                    "timestamp": p.timestamp.isoformat() if hasattr(p.timestamp, 'isoformat') else p.timestamp,
                     "trail": p.trail,
                     "alive": p.alive,
                     "ip_adr": p.ip_adr
@@ -231,3 +233,11 @@ class GameState:
         ))
 
         return ranked
+
+    def remove_player(self, port):
+        if port in self.players:
+            player = self.players[port]
+            player.trail.append((player.x, player.y))
+            player.alive = False
+            player.name = f"{player.name} (left)"
+            logger.info(f"Player {port} left the game. Trail remains.")
