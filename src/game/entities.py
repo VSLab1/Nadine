@@ -4,17 +4,18 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Player:
-    def __init__(self, name, port, color, x, y, ip_adr, timestamp, trail = None):
+    def __init__(self, name, port, color, x, y, ip_adr, timestamp, moves = 0, trail = None):
         self.name = name
         self.port = port
         self.color = color
         self.x = x
         self.y = y
+        self.moves = moves if moves is not None else 0
         self.trail = trail if trail is not None else []
-        self.moves = 0
         self.alive = True
         self.timestamp = timestamp
         self.ip_adr = ip_adr
+        self.has_left = False
 
     def move(self, new_x, new_y):
         if not self.alive:
@@ -32,6 +33,12 @@ class Player:
         logger.info(f"Player {self.port} died after {self.moves} moves")
         self.alive = False
         self.timestamp = timestamp
+
+    def leave(self):
+        if (self.x, self.y) not in self.trail:
+            self.trail.append((self.x, self.y))
+        self.alive = False
+        self.has_left = True
 
     def to_dict(self):
         return {

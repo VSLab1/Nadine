@@ -3,24 +3,30 @@ import socket
 import threading
 import json
 import traceback
+from PyQt5.QtCore import QObject, pyqtSignal
 
 
-class Network:
-    def __init__(self, port, on_event_callback):
+class Network(QObject):
+    message_received = pyqtSignal(str, dict, tuple)
+    def __init__(self, port):
+        super().__init__()
         self.port = port
-        self.on_event = on_event_callback
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.running = True
 
         try:
             self.sock.bind(("", port))
         except OSError:
             raise OSError(f"Port{port} is already in use")
 
-        self.running = True
-        threading.Thread(target=self.listen, daemon=True).start()
+        self.listen_thread = threading.Thread(target=self.listen, daemon=True)
+        self.listen_thread.start()
 
     def send_to(self, message, addr):
-        self.sock.sendto(message.encode(), addr)
+        try:
+            self.sock.sendto(message.encode(), addr)
+        except Exception as e:
+            print(f"Send error to {addr}: {e}")
 
     def listen(self):
         while self.running:
@@ -28,13 +34,11 @@ class Network:
                 data, addr = self.sock.recvfrom(8192)
                 event = json.loads(data.decode())
 
-                msg_type = event["type"]
-                data = event["data"]
-
-                self.on_event(msg_type, data, addr)
+                self.message_received.emit(event["type"], event["data"], addr)
             except Exception as e:
-                print("Network error:", e)
-                traceback.print_exc()
+                if self.running:
+                    print("Network error:", e)
+                    traceback.print_exc()
 
     def send_broadcast(self, message, recipients):
         data = message.encode()
