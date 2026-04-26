@@ -41,16 +41,19 @@ class Player:
         self.has_left = True
 
     def to_dict(self):
+        serializable_trail = []
+        for pos in self.trail:
+            serializable_trail.append([int(pos[0]), int(pos[1])])
         return {
             "name": self.name,
             "port": self.port,
             "color": self.color,
-            "x": self.x,
-            "y": self.y,
-            "trail": self.trail,
+            "x": int(self.x),
+            "y": int(self.y),
+            "trail": serializable_trail,
             "moves": self.moves,
             "alive": self.alive,
-            "timestamp": self.timestamp.isoformat() if hasattr(self.timestamp, 'isoformat') else self.timestamp,
+            "timestamp": self.timestamp.strftime("%H:%M:%S") if hasattr(self.timestamp, 'strftime') else self.timestamp,
             "ip_adr": self.ip_adr
         }
 

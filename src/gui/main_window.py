@@ -26,57 +26,92 @@ class GameGUI(QWidget):
             size += 1
             print(f"Grid-Größe angepasst auf {size} (ungerade Zahl für Symmetrie benötigt).")
         self.grid_size = size
-        self.battlefield.reset_size(size)
+
+        try:
+            new_controller = MainController(
+                self, port, name, color,
+                target_ip=ip if ip else None,
+                target_port=f_port if f_port else None,
+                grid_size=size
+            )
+            if not hasattr(new_controller, 'engine') or new_controller.network is None:
+                return
+            self.controller = new_controller
+
+        except OSError as e:
+            print(f"DEBUG: Port Fehler abgefangen: {e}")
+            self.show_error_and_return_to_menu("port_taken_locally")
+            return
+        except Exception as e:
+            print(f"Ein unerwarteter Fehler ist aufgetreten: {e}")
+            return
 
         self.connection_ui.hide()
         self.main_layout.removeWidget(self.connection_ui)
 
-        self.controller = MainController(
-            self, port, name, color,
-            target_ip=ip if ip else None,
-            target_port=f_port if f_port else None,
-            grid_size=size
-        )
+        if not hasattr(self, 'battlefield') or self.battlefield is None:
+            from .widgets import BattlefieldWidget
+            self.battlefield = BattlefieldWidget(size)
+        else:
+            self.battlefield.reset_size(size)
 
-        self.sidebar_widget = QWidget()
-        self.sidebar_widget.setMinimumWidth(220)
-        self.sidebar_widget.setFocusPolicy(Qt.NoFocus)
+        self.battlefield.show()
 
-        sidebar_layout = QVBoxLayout(self.sidebar_widget)
-        sidebar_layout.setContentsMargins(10, 10, 10, 10)
-        sidebar_layout.setSpacing(15)
+        if not hasattr(self, 'sidebar') or self.sidebar is None:
+            from .widgets import PlayerListWidget
+            self.sidebar = PlayerListWidget()
 
-        self.sidebar.setFocusPolicy(Qt.NoFocus)
-        sidebar_layout.addWidget(self.sidebar, stretch=1)
+        if not hasattr(self, 'sidebar_widget') or self.sidebar_widget is None:
+            from PyQt5.QtWidgets import QWidget, QVBoxLayout, QPushButton
+            from PyQt5.QtCore import Qt
 
-        self.leave_button = QPushButton("Leave Game")
-        self.leave_button.setFocusPolicy(Qt.NoFocus)
-        self.leave_button.setMinimumHeight(45)
-        self.leave_button.setStyleSheet("""
-            QPushButton {
-                background-color: #c0392b;
-                color: white;
-                font-weight: bold;
-                border-radius: 4px;
-                border: 1px solid #a93226;
-            }
-            QPushButton:hover {
-                background-color: #e74c3c;
-            }
-        """)
-        self.leave_button.clicked.connect(self.controller.handle_leave)
-        sidebar_layout.addWidget(self.leave_button)
+            self.sidebar_widget = QWidget()
+            self.sidebar_widget.setMinimumWidth(220)
+            self.sidebar_widget.setFocusPolicy(Qt.NoFocus)
 
-        self.main_layout.addWidget(self.battlefield, stretch=5)
-        self.main_layout.addWidget(self.sidebar_widget, stretch=1)
+            sidebar_layout = QVBoxLayout(self.sidebar_widget)
+            sidebar_layout.setContentsMargins(10, 10, 10, 10)
+            sidebar_layout.setSpacing(15)
 
+            self.sidebar.setFocusPolicy(Qt.NoFocus)
+            sidebar_layout.addWidget(self.sidebar, stretch=1)
+
+            self.leave_button = QPushButton("Leave Game")
+            self.leave_button.setFocusPolicy(Qt.NoFocus)
+            self.leave_button.setMinimumHeight(45)
+            self.leave_button.setStyleSheet("""
+                QPushButton {
+                    background-color: #c0392b; color: white; font-weight: bold;
+                    border-radius: 4px; border: 1px solid #a93226;
+                }
+                QPushButton:hover { background-color: #e74c3c; }
+            """)
+            self.leave_button.clicked.connect(self.controller.handle_leave)
+            sidebar_layout.addWidget(self.leave_button)
+        else:
+            try:
+                self.leave_button.clicked.disconnect()
+            except: pass
+            self.leave_button.clicked.connect(self.controller.handle_leave)
+
+        self.sidebar_widget.show()
+        if self.main_layout.indexOf(self.battlefield) == -1:
+            self.main_layout.addWidget(self.battlefield, stretch=5)
+        if self.main_layout.indexOf(self.sidebar_widget) == -1:
+            self.main_layout.addWidget(self.sidebar_widget, stretch=1)
+
+        self.controller.refresh_gui()
         self.resize(1000, 800)
         self.setFocus()
 
     def update_view(self, players):
         """delegates the drawing to specialized Widgets"""
-        self.battlefield.update_grid(players)
-        self.sidebar.update_scores(players)
+        if self.battlefield and self.sidebar:
+            try:
+                self.battlefield.update_grid(players)
+                self.sidebar.update_scores(players)
+            except RuntimeError:
+                pass
 
 
     def keyPressEvent(self, event):
@@ -88,18 +123,30 @@ class GameGUI(QWidget):
 
     def show_error_and_return_to_menu(self, reason):
         """shows error message and gets back to login"""
+        if hasattr(self, 'controller') and self.controller:
+            self.controller.stop()
+            self.controller = None
+        if hasattr(self, 'battlefield') and self.battlefield:
+            self.battlefield.hide()
+        if hasattr(self, 'sidebar_widget') and self.sidebar_widget:
+            self.sidebar_widget.hide()
+
+        reasons = {
+            "name_taken": "Dieser Name ist bereits vergeben.",
+            "port_taken": "Dieser Port wird bereits vom Host genutzt.",
+            "port_taken_locally": "Dein gewählter Port ist auf deinem PC bereits belegt.",
+            "color_taken": "Diese Farbe wird bereits verwendet.",
+            "game_full": "Das Spiel ist leider voll."
+        }
+
+        text = reasons.get(reason, f"Unbekannter Fehler: {reason}")
+
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Warning)
-        msg.setText("Beitritt abgelehnt")
-        msg.setInformativeText(f"Grund: {reason}")
+        msg.setText("Verbindung fehlgeschlagen")
+        msg.setInformativeText(text)
         msg.setWindowTitle("Fehler")
         msg.exec_()
-
-        # set back UI
-        self.battlefield.hide()
-        self.sidebar.hide()
-        self.main_layout.removeWidget(self.battlefield)
-        self.main_layout.removeWidget(self.sidebar)
 
         # show old menu
         self.connection_ui.show()

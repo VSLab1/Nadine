@@ -1,4 +1,5 @@
 import json
+import datetime
 
 class GameProtocol:
     @staticmethod
@@ -11,5 +12,8 @@ class GameProtocol:
 
     @staticmethod
     def death(port, timestamp):
-        ts = timestamp.isoformat() if hasattr(timestamp, 'isoformat') else timestamp
-        return GameProtocol.wrap("dead", {"port": port, "timestamp": ts})
+        if isinstance(timestamp, datetime.datetime):
+            ts_str = timestamp.strftime("%H:%M:%S")
+        else:
+            ts_str = str(timestamp)
+        return GameProtocol.wrap("dead", {"port": port, "timestamp": ts_str})
