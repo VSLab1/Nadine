@@ -12,11 +12,16 @@ class MainController:
         self.local_name = name
         self.local_color = color
         self.port = port
-        self.network = Network(port)
+        try:
+            self.network = Network(port)
+        except OSError:
+            self.gui.show_error_and_return_to_menu("port_taken_locally")
+            return
         self.network.message_received.connect(self.on_network_data)
 
         self.last_own_action = datetime.datetime.now()
-        self.timeout_limit = 1000.0
+
+        self.timeout_limit = 3
 
         self.self_check_timer = QTimer()
         self.self_check_timer.timeout.connect(self.check_self_timeout)
@@ -24,6 +29,7 @@ class MainController:
 
         self.engine = GameEngine(grid_size)
         self.protocol = GameProtocol()
+
         if not target_ip:
             self.engine.add_player(name, port, color, "127.0.0.1", datetime.datetime.now())
             self.refresh_gui()
@@ -54,9 +60,11 @@ class MainController:
         collision = self.engine.check_collision(self.port, new_x, new_y)
 
         if collision:
-            player.kill(datetime.datetime.now())
+            death_time = datetime.datetime.now()
+            player.kill(death_time)
             # broadcast death
-            msg = self.protocol.death(self.port, player.timestamp)
+            timestamp_str = self.convert_datetime_to_str(death_time)
+            msg = self.protocol.death(self.port, timestamp_str)
             self.broadcast(msg)
         else:
             player.move(new_x, new_y)
@@ -76,34 +84,24 @@ class MainController:
         elif msg_type == "dead":
             player_port = data["port"]
             if player_port in self.engine.players:
-                raw_time = data.get("timestamp")
-                if isinstance(raw_time, str):
-                    try:
-                        datetime_timestamp = datetime.datetime.fromisoformat(raw_time)
-                    except ValueError:
-                        print("converting str to datetime not successful")
-                else:
-                    datetime_timestamp = raw_time
-
-                self.engine.players[player_port].kill(datetime_timestamp)
+                datetime_object = self.convert_str_to_datetime(data.get("timestamp"))
+                self.engine.players[player_port].kill(datetime_object)
 
         elif msg_type == "join_request":
             self.handle_join_request(data, addr)
 
         elif msg_type == "join_accept":
-            host_grid_size = data.get("grid_size", self.engine.battlefield.size)
-            self.engine = GameEngine(host_grid_size)
-            self.gui.battlefield.reset_size(host_grid_size)
+            matrix = data.get("grid")
+
+            if isinstance(matrix, list) and len(matrix) > 0:
+                host_grid_size = len(matrix)
+                self.engine = GameEngine(host_grid_size)
+                self.gui.battlefield.reset_size(host_grid_size)
+            else:
+                print("warning no valid matrix received")
 
             for p_data in data["players"]:
-                raw_time = p_data.get("timestamp")
-                datetime_timestamp = None
-                if raw_time:
-                    try:
-                        datetime_timestamp = datetime.datetime.fromisoformat(raw_time)
-                    except (ValueError, TypeError):
-                        print("converting timestamp to datetime failed")
-
+                datetime_object = self.convert_str_to_datetime(p_data.get("timestamp"))
                 self.engine.add_player(
                     name=p_data["name"],
                     port=p_data["port"],
@@ -113,13 +111,15 @@ class MainController:
                     x=p_data["x"],
                     y=p_data["y"],
                     trail=p_data["trail"],
-                    timestamp=datetime_timestamp
+                    timestamp=datetime_object
                 )
             self.refresh_gui()
 
         elif msg_type == "join_reject":
+            self.stop()
             reason = data.get("reason", "Unknown")
             self.gui.show_error_and_return_to_menu(reason)
+            return
 
         elif msg_type == "player_joined":
             player_data = data["player"]
@@ -128,7 +128,7 @@ class MainController:
                 datetime_timestamp = None
                 if raw_time:
                     try:
-                        datetime_timestamp = datetime.datetime.fromisoformat(raw_time)
+                        datetime_timestamp = datetime.datetime.strptime(raw_time, "%H:%M:%S")
                     except (ValueError, TypeError):
                         print("converting timestamp to datetime failed")
 
@@ -184,8 +184,11 @@ class MainController:
                 emoji = rank_emojis.get(rank)
                 if player.alive:
                     time_str = "Still alive"
-                elif player.timestamp:
+                elif isinstance(player.timestamp, datetime.datetime):
                     time_str = player.timestamp.strftime("%H:%M:%S")
+                elif isinstance(player.timestamp, str):
+
+                    time_str = player.timestamp[:8]
                 else:
                     time_str = "Unknown"
 
@@ -215,20 +218,22 @@ class MainController:
         # 1. validates against other players
         for player in self.engine.players.values():
             if name.lower() == player.name.lower():
-                self.network.send_to(self.protocol.wrap("join_reject", {"reason": "NAME_TAKEN"}), addr)
+                self.network.send_to(self.protocol.wrap("join_reject", {"reason": "name_taken"}), addr)
                 return
             if port == player.port:
-                self.network.send_to(self.protocol.wrap("join_reject", {"reason": "PORT_TAKEN"}), addr)
+                self.network.send_to(self.protocol.wrap("join_reject", {"reason": "port_taken"}), addr)
                 return
             if color == player.color:
-                self.network.send_to(self.protocol.wrap("join_reject", {"reason": "COLOR_TAKEN"}), addr)
+                self.network.send_to(self.protocol.wrap("join_reject", {"reason": "color_taken"}), addr)
                 return
 
         # 2. add player to engine
         new_player = self.engine.add_player(name, port, color, ip_adr, datetime.datetime.now())
         if not new_player:
-            self.network.send_to(self.protocol.wrap("join_reject", {"reason": "GAME_FULL"}), addr)
+            self.network.send_to(self.protocol.wrap("join_reject", {"reason": "game_full"}), addr)
             return
+
+        grid = self.engine.get_grid_matrix()
 
         # 3. new player gets current state (Join Accept)
         # send list of all players
@@ -237,7 +242,7 @@ class MainController:
         ]
         accept_msg = self.protocol.wrap("join_accept", {
             "players": all_others_data,
-            "grid_size": self.engine.battlefield.size # Host-Größe mitschicken!
+            "grid": grid
         })
         self.network.send_to(accept_msg, addr)
 
@@ -273,6 +278,38 @@ class MainController:
         elapsed = (datetime.datetime.now() - self.last_own_action).total_seconds()
 
         if elapsed > self.timeout_limit:
-            player.kill(datetime.datetime.now())
-            msg = self.protocol.death(self.port, player.timestamp)
+            death_time = datetime.datetime.now()
+            player.kill(death_time)
+            msg = self.protocol.death(self.port, death_time.strftime("%H:%M:%S"))
             self.broadcast(msg)
+
+    def stop(self):
+        """end controller and release ressources."""
+        self.self_check_timer.stop()
+        if hasattr(self, 'network'):
+            self.network.running = False
+            if hasattr(self.network, 'sock'):
+                self.network.sock.close()
+            try:
+                self.network.message_received.disconnect(self.on_network_data)
+            except:
+                pass
+            if hasattr(self.network, 'sock'):
+                self.network.sock.close()
+
+    def convert_datetime_to_str(self, datetime_obj):
+        if isinstance(datetime_obj, datetime.datetime):
+            return datetime_obj.strftime("%H:%M:%S")
+        return str(datetime_obj)
+
+    def convert_str_to_datetime(self, raw_time):
+        if not raw_time or not isinstance(raw_time, str):
+            return datetime.datetime.now()
+        try:
+            return datetime.datetime.strptime(raw_time, "%H:%M:%S").replace(
+                year=datetime.datetime.now().year,
+                month=datetime.datetime.now().month,
+                day=datetime.datetime.now().day
+            )
+        except (ValueError, TypeError):
+            return datetime.datetime.now()

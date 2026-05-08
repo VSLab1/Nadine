@@ -150,7 +150,7 @@ imports:
  &#8226;   <a href="#enum">enum</a>
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#genericpath">genericpath</a>
- &#8226;   <a href="#gui.gui">gui.gui</a>
+ &#8226;   <a href="#gui.main_window">gui.main_window</a>
  &#8226;   <a href="#heapq">heapq</a>
  &#8226;   <a href="#io">io</a>
  &#8226;   <a href="#keyword">keyword</a>
@@ -266,6 +266,7 @@ imports:
  &#8226;   <a href="#PyQt5.sip">PyQt5.sip</a>
  &#8226;   <a href="#os">os</a>
  &#8226;   <a href="#pkgutil">pkgutil</a>
+ &#8226;   <a href="#sip">sip</a>
  &#8226;   <a href="#sys">sys</a>
 
   </div>
@@ -297,7 +298,10 @@ imported by:
     <a href="#PyQt5">PyQt5</a>
  &#8226;   <a href="#PyQt5.QtGui">PyQt5.QtGui</a>
  &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
- &#8226;   <a href="#gui.gui">gui.gui</a>
+ &#8226;   <a href="#controller.main_controller">controller.main_controller</a>
+ &#8226;   <a href="#gui.main_window">gui.main_window</a>
+ &#8226;   <a href="#gui.widgets">gui.widgets</a>
+ &#8226;   <a href="#network.connection">network.connection</a>
 
   </div>
 
@@ -319,6 +323,7 @@ imports:
 imported by:
     <a href="#PyQt5">PyQt5</a>
  &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
+ &#8226;   <a href="#gui.widgets">gui.widgets</a>
 
   </div>
 
@@ -340,7 +345,9 @@ imports:
 imported by:
     <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
  &#8226;   <a href="#PyQt5.QtGui">PyQt5.QtGui</a>
- &#8226;   <a href="#gui.gui">gui.gui</a>
+ &#8226;   <a href="#controller.main_controller">controller.main_controller</a>
+ &#8226;   <a href="#gui.main_window">gui.main_window</a>
+ &#8226;   <a href="#gui.widgets">gui.widgets</a>
  &#8226;   <a href="#main.py">main.py</a>
 
   </div>
@@ -1730,6 +1737,39 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="controller"></a>
+  <a target="code" href="-" type="text/plain"><tt>controller</tt></a>
+<span class="moduletype">NamespacePackage</span>  <div class="import">
+imported by:
+    <a href="#controller.main_controller">controller.main_controller</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="controller.main_controller"></a>
+  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/controller/main_controller.py" type="text/plain"><tt>controller.main_controller</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
+ &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
+ &#8226;   <a href="#controller">controller</a>
+ &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#game.game_engine">game.game_engine</a>
+ &#8226;   <a href="#network.connection">network.connection</a>
+ &#8226;   <a href="#network.protocol">network.protocol</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#gui.main_window">gui.main_window</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="copy"></a>
   <a target="code" href="///C:/Users/nbich/AppData/Local/Programs/Python/Python313/Lib/copy.py" type="text/plain"><tt>copy</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -1836,10 +1876,10 @@ imported by:
  &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
  &#8226;   <a href="#_strptime">_strptime</a>
  &#8226;   <a href="#calendar">calendar</a>
+ &#8226;   <a href="#controller.main_controller">controller.main_controller</a>
  &#8226;   <a href="#email.utils">email.utils</a>
- &#8226;   <a href="#game.entities">game.entities</a>
- &#8226;   <a href="#game.game">game.game</a>
- &#8226;   <a href="#gui.gui">gui.gui</a>
+ &#8226;   <a href="#game.game_engine">game.game_engine</a>
+ &#8226;   <a href="#network.protocol">network.protocol</a>
 
   </div>
 
@@ -4877,7 +4917,6 @@ imported by:
  &#8226;   <a href="#calendar">calendar</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#main.py">main.py</a>
- &#8226;   <a href="#network.messages">network.messages</a>
  &#8226;   <a href="#py_compile">py_compile</a>
  &#8226;   <a href="#re">re</a>
  &#8226;   <a href="#signal">signal</a>
@@ -5016,7 +5055,7 @@ imported by:
 <span class="moduletype">NamespacePackage</span>  <div class="import">
 imported by:
     <a href="#game.entities">game.entities</a>
- &#8226;   <a href="#game.game">game.game</a>
+ &#8226;   <a href="#game.game_engine">game.game_engine</a>
 
   </div>
 
@@ -5027,22 +5066,21 @@ imported by:
   <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/game/entities.py" type="text/plain"><tt>game.entities</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#datetime">datetime</a>
- &#8226;   <a href="#game">game</a>
+    <a href="#game">game</a>
  &#8226;   <a href="#logging">logging</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#game.game">game.game</a>
+    <a href="#game.game_engine">game.game_engine</a>
 
   </div>
 
 </div>
 
 <div class="node">
-  <a name="game.game"></a>
-  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/game/game.py" type="text/plain"><tt>game.game</tt></a>
+  <a name="game.game_engine"></a>
+  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/game/game_engine.py" type="text/plain"><tt>game.game_engine</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
     <a href="#datetime">datetime</a>
@@ -5053,7 +5091,7 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#gui.gui">gui.gui</a>
+    <a href="#controller.main_controller">controller.main_controller</a>
 
   </div>
 
@@ -5184,30 +5222,49 @@ imported by:
   <a target="code" href="-" type="text/plain"><tt>gui</tt></a>
 <span class="moduletype">NamespacePackage</span>  <div class="import">
 imported by:
-    <a href="#gui.gui">gui.gui</a>
+    <a href="#gui.main_window">gui.main_window</a>
+ &#8226;   <a href="#gui.widgets">gui.widgets</a>
 
   </div>
 
 </div>
 
 <div class="node">
-  <a name="gui.gui"></a>
-  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/gui/gui.py" type="text/plain"><tt>gui.gui</tt></a>
+  <a name="gui.main_window"></a>
+  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/gui/main_window.py" type="text/plain"><tt>gui.main_window</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
     <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
  &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
- &#8226;   <a href="#datetime">datetime</a>
- &#8226;   <a href="#game.game">game.game</a>
+ &#8226;   <a href="#controller.main_controller">controller.main_controller</a>
  &#8226;   <a href="#gui">gui</a>
- &#8226;   <a href="#logging">logging</a>
- &#8226;   <a href="#network.messages">network.messages</a>
- &#8226;   <a href="#network.network">network.network</a>
+ &#8226;   <a href="#gui.widgets">gui.widgets</a>
+ &#8226;   <a href="#sys">sys</a>
 
   </div>
   <div class="import">
 imported by:
     <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="gui.widgets"></a>
+  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/gui/widgets.py" type="text/plain"><tt>gui.widgets</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
+ &#8226;   <a href="#PyQt5.QtGui">PyQt5.QtGui</a>
+ &#8226;   <a href="#PyQt5.QtWidgets">PyQt5.QtWidgets</a>
+ &#8226;   <a href="#gui">gui</a>
+ &#8226;   <a href="#sip">sip</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#gui.main_window">gui.main_window</a>
 
   </div>
 
@@ -5954,8 +6011,8 @@ imported by:
  &#8226;   <a href="#json.decoder">json.decoder</a>
  &#8226;   <a href="#json.encoder">json.encoder</a>
  &#8226;   <a href="#json.scanner">json.scanner</a>
- &#8226;   <a href="#network.messages">network.messages</a>
- &#8226;   <a href="#network.network">network.network</a>
+ &#8226;   <a href="#network.connection">network.connection</a>
+ &#8226;   <a href="#network.protocol">network.protocol</a>
 
   </div>
 
@@ -6108,8 +6165,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#game.entities">game.entities</a>
- &#8226;   <a href="#game.game">game.game</a>
- &#8226;   <a href="#gui.gui">gui.gui</a>
+ &#8226;   <a href="#game.game_engine">game.game_engine</a>
  &#8226;   <a href="#hashlib">hashlib</a>
  &#8226;   <a href="#main.py">main.py</a>
 
@@ -6182,37 +6238,20 @@ imported by:
   <a target="code" href="-" type="text/plain"><tt>network</tt></a>
 <span class="moduletype">NamespacePackage</span>  <div class="import">
 imported by:
-    <a href="#network.messages">network.messages</a>
- &#8226;   <a href="#network.network">network.network</a>
+    <a href="#network.connection">network.connection</a>
+ &#8226;   <a href="#network.protocol">network.protocol</a>
 
   </div>
 
 </div>
 
 <div class="node">
-  <a name="network.messages"></a>
-  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/network/messages.py" type="text/plain"><tt>network.messages</tt></a>
+  <a name="network.connection"></a>
+  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/network/connection.py" type="text/plain"><tt>network.connection</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#enum">enum</a>
+    <a href="#PyQt5.QtCore">PyQt5.QtCore</a>
  &#8226;   <a href="#json">json</a>
- &#8226;   <a href="#network">network</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#gui.gui">gui.gui</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="network.network"></a>
-  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/network/network.py" type="text/plain"><tt>network.network</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#json">json</a>
  &#8226;   <a href="#network">network</a>
  &#8226;   <a href="#socket">socket</a>
  &#8226;   <a href="#threading">threading</a>
@@ -6221,7 +6260,25 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#gui.gui">gui.gui</a>
+    <a href="#controller.main_controller">controller.main_controller</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="network.protocol"></a>
+  <a target="code" href="///C:/Users/nbich/Documents/6/VerteilteSysteme/Labor/1/lab01/src/network/protocol.py" type="text/plain"><tt>network.protocol</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#datetime">datetime</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#network">network</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#controller.main_controller">controller.main_controller</a>
 
   </div>
 
@@ -7000,6 +7057,18 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="sip"></a>
+  <a target="code" href="" type="text/plain"><tt>sip</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
+imported by:
+    <a href="#PyQt5">PyQt5</a>
+ &#8226;   <a href="#gui.widgets">gui.widgets</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="socket"></a>
   <a target="code" href="///C:/Users/nbich/AppData/Local/Programs/Python/Python313/Lib/socket.py" type="text/plain"><tt>socket</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -7017,7 +7086,7 @@ imports:
   <div class="import">
 imported by:
     <a href="#email.utils">email.utils</a>
- &#8226;   <a href="#network.network">network.network</a>
+ &#8226;   <a href="#network.connection">network.connection</a>
 
   </div>
 
@@ -7258,6 +7327,7 @@ imported by:
  &#8226;   <a href="#getopt">getopt</a>
  &#8226;   <a href="#gettext">gettext</a>
  &#8226;   <a href="#glob">glob</a>
+ &#8226;   <a href="#gui.main_window">gui.main_window</a>
  &#8226;   <a href="#gzip">gzip</a>
  &#8226;   <a href="#importlib">importlib</a>
  &#8226;   <a href="#importlib._bootstrap_external">importlib._bootstrap_external</a>
@@ -7403,7 +7473,7 @@ imported by:
     <a href="#_threading_local">_threading_local</a>
  &#8226;   <a href="#importlib.util">importlib.util</a>
  &#8226;   <a href="#logging">logging</a>
- &#8226;   <a href="#network.network">network.network</a>
+ &#8226;   <a href="#network.connection">network.connection</a>
  &#8226;   <a href="#subprocess">subprocess</a>
  &#8226;   <a href="#zipfile">zipfile</a>
 
@@ -7503,7 +7573,7 @@ imports:
 imported by:
     <a href="#logging">logging</a>
  &#8226;   <a href="#main.py">main.py</a>
- &#8226;   <a href="#network.network">network.network</a>
+ &#8226;   <a href="#network.connection">network.connection</a>
  &#8226;   <a href="#py_compile">py_compile</a>
  &#8226;   <a href="#threading">threading</a>
  &#8226;   <a href="#warnings">warnings</a>

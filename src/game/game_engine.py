@@ -12,11 +12,13 @@ class GameEngine:
         self.players = {}
 
     def add_player(self, name, port, color, ip_adr, timestamp, moves=0, trail=None, x=None, y=None):
-        if x is None or y is None:
-            start_position = self.get_free_start_position()
-            if not start_position:
-                return None
-            x, y = start_position
+        if trail is None:
+            trail = []
+            if x is None or y is None:
+                start_position = self.get_free_start_position()
+                if not start_position:
+                    return None
+                x, y = start_position
 
         player = Player(name, port, color, x, y, ip_adr, timestamp, moves, trail)
         self.players[port] = player
@@ -42,7 +44,10 @@ class GameEngine:
         for player in self.players.values():
             taken.add((player.x, player.y))
             for trail_pos in player.trail:
-                taken.add(trail_pos)
+                if isinstance(trail_pos, list):
+                    taken.add(tuple(trail_pos))
+                else:
+                    taken.add(trail_pos)
 
         for s in starts:
             if s not in taken:
@@ -62,3 +67,17 @@ class GameEngine:
         return sorted(self.players.values(),
                       key=lambda player: (player.alive, player.timestamp if not player.alive else datetime.datetime.max, player.moves),
                       reverse=True)
+
+    def get_grid_matrix(self):
+        size = self.battlefield.size
+        grid = [[0 for _ in range(size)] for _ in range(size)]
+
+        for player in self.players.values():
+            for(tx, ty) in player.trail:
+                if 0 <= tx < size and 0 <= ty < size:
+                    grid[tx][ty] = player.port
+
+            if player.alive and 0 <= player.x < size and 0 <= player.y < size:
+                grid[player.x][player.y] = player.port
+
+        return grid

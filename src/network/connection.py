@@ -12,6 +12,7 @@ class Network(QObject):
         super().__init__()
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.running = True
 
         try:
@@ -31,7 +32,7 @@ class Network(QObject):
     def listen(self):
         while self.running:
             try:
-                data, addr = self.sock.recvfrom(8192)
+                data, addr = self.sock.recvfrom(65535)
                 event = json.loads(data.decode())
 
                 self.message_received.emit(event["type"], event["data"], addr)
