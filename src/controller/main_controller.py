@@ -21,7 +21,7 @@ class MainController:
 
         self.last_own_action = datetime.datetime.now()
 
-        self.timeout_limit = 1000.0
+        self.timeout_limit = 3
 
         self.self_check_timer = QTimer()
         self.self_check_timer.timeout.connect(self.check_self_timeout)
