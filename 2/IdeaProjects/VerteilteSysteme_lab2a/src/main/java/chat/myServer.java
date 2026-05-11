@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class myServer {
     private static final Logger logger = Logger.getLogger(myServer.class.getName());
     private static final Map<String, StreamObserver<MemberOptions>> clients = new ConcurrentHashMap<>();
-    private static final int MAX_MEMBERS = 10;
+    private static final int MAX_MEMBERS = 3;
 
     public static void main(String[] args) throws IOException, InterruptedException{
         int port = 50051;
@@ -56,7 +56,13 @@ public class myServer {
                                 currentNickname = nickname;
                                 clients.put(nickname, my_observer);
                                 my_observer.onNext(createStatusResponse(GetJoinStatus.SUCCESS));
-                                broadcastInfo(nickname + " has joined the chat");
+
+                                MemberOptions info = MemberOptions.newBuilder()
+                                        .setJoin(JoinChat.newBuilder().setNickname(currentNickname).build())
+                                        .build();
+                                clients.values().forEach(observer -> observer.onNext(info));
+
+                                System.out.println(currentNickname + "joined the chat");
                             }
                             break;
                         case SEND:
@@ -88,17 +94,14 @@ public class myServer {
                 private void handleLeave() {
                     if (currentNickname != null) {
                         clients.remove(currentNickname);
-                        broadcastInfo(currentNickname + " has left the chat");
+                        String text = currentNickname + " has left the chat";
+                        MemberOptions info = MemberOptions.newBuilder()
+                                .setLeave(LeaveChat.newBuilder().setNickname(currentNickname).build())
+                                .build();
+                        clients.values().forEach(observer -> observer.onNext(info));
+                        System.out.println(text);
                         currentNickname = null;
                     }
-                }
-
-                private void broadcastInfo(String text) {
-                    MemberOptions info = MemberOptions.newBuilder()
-                            .setSend(ChatMsg.newBuilder().setNickname("SYSTEM").setText(text).build())
-                            .build();
-                    clients.values().forEach(observer -> observer.onNext(info));
-                    System.out.println(text);
                 }
 
                 private MemberOptions createStatusResponse(GetJoinStatus status) {

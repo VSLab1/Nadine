@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "chat";
+option java_outer_classname = "MyProject";
+option objc_class_prefix = "MP";
+
+package chat;
+
+import "google/protobuf/empty.proto";
+
+enum GetJoinStatus {
+	SUCCESS = 0;
+	NAME_TAKEN = 1;
+	CHAT_FULL = 2;
+}
+
+message GetStatus {
+	GetJoinStatus status = 1;
+}
+
+message MemberOptions {
+	oneof option_type {
+		JoinChat join = 1;
+		LeaveChat leave = 2;
+		ChatMsg send = 3;
+		GetStatus getStatus = 4;
+	}
+}
+
+message JoinChat {
+	string nickname = 1;
+}
+
+message LeaveChat{
+	string nickname = 1;
+}
+
+message ChatMsg {
+	string nickname = 1;
+string text = 2;
+}
+
+message NewMember {
+  	string nickname = 1;
+}
+
+message MemberList {
+  	repeated NewMember members = 1;
+}
+
+
+service ChatService {
+	rpc GetMemberList(google.protobuf.Empty) returns (MemberList);
+	rpc RegisterStream(stream MemberOptions) returns (stream MemberOptions);
+}
+
