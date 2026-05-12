@@ -38,7 +38,7 @@ public class myClient {
                         System.out.println(value.getSend().getNickname() + ": " + value.getSend().getText());
                         break;
                     case LEAVE:
-                        System.out.println("a member has left the chat");
+                        System.out.println(value.getLeave().getNickname() + " has left the chat");
                         break;
                     case GETSTATUS:
                         GetJoinStatus status = value.getGetStatus().getStatus();

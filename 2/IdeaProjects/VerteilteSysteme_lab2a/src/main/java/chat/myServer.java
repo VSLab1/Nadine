@@ -47,32 +47,35 @@ public class myServer {
                     switch (value.getOptionTypeCase()) {
                         case JOIN:
                             String nickname = value.getJoin().getNickname();
-                            StreamObserver<MemberOptions> my_observer = responseObserver;
                             if (clients.containsKey(nickname)) {
-                                my_observer.onNext(createStatusResponse(GetJoinStatus.NAME_TAKEN));
+                                responseObserver.onNext(createStatusResponse(GetJoinStatus.NAME_TAKEN));
                             } else if (clients.size() >= MAX_MEMBERS) {
-                                my_observer.onNext(createStatusResponse(GetJoinStatus.CHAT_FULL));
+                                responseObserver.onNext(createStatusResponse(GetJoinStatus.CHAT_FULL));
                             } else {
                                 currentNickname = nickname;
-                                clients.put(nickname, my_observer);
-                                my_observer.onNext(createStatusResponse(GetJoinStatus.SUCCESS));
+                                clients.put(currentNickname, responseObserver);
+                                responseObserver.onNext(createStatusResponse(GetJoinStatus.SUCCESS));
 
-                                MemberOptions info = MemberOptions.newBuilder()
+                                MemberOptions joinNotification = MemberOptions.newBuilder()
                                         .setJoin(JoinChat.newBuilder().setNickname(currentNickname).build())
                                         .build();
-                                clients.values().forEach(observer -> observer.onNext(info));
+
+                                clients.forEach((name, observer) -> {
+                                    if(!name.equals(currentNickname)){
+                                        observer.onNext(joinNotification);
+                                    }
+                                });
 
                                 System.out.println(currentNickname + "joined the chat");
                             }
                             break;
                         case SEND:
                             ChatMsg msg = value.getSend();
-                            String formattedText = msg.getNickname() + ": " + msg.getText();
-                            System.out.println("Broadcast: " + formattedText);
+                            System.out.println("Broadcast: " + currentNickname + ": " + msg.getText());
 
                             MemberOptions broadcastMsg = MemberOptions.newBuilder()
                                     .setSend(ChatMsg.newBuilder()
-                                            .setNickname(msg.getNickname())
+                                            .setNickname(currentNickname)
                                             .setText(msg.getText())
                                             .build())
                                     .build();
