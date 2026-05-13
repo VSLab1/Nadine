@@ -8,6 +8,8 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Scanner;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class myClient {
     private final ChatServiceGrpc.ChatServiceStub asyncStub;
@@ -17,8 +19,12 @@ public class myClient {
     private volatile boolean joinFailed = false;
     private volatile boolean isRegistered = false;
 
-    public void resetJoin(){
+    private CountDownLatch joinLatch;
+
+    public void prepareJoin(){
         joinFailed = false;
+        isRegistered = false;
+        joinLatch = new CountDownLatch(1);
     }
 
     public myClient(Channel channel){
@@ -55,6 +61,8 @@ public class myClient {
                             isRegistered = true;
                             joinFailed = false;
                         }
+                        if(joinLatch != null) joinLatch.countDown();
+
                         break;
                     default:
                         break;
@@ -86,7 +94,7 @@ public class myClient {
         while(!client.isRegistered){
             System.out.print("insert nickname: ");
             name = scanner.nextLine();
-            client.resetJoin();
+            client.prepareJoin();
 
             // 1. send JOIN
             MemberOptions joinReq = MemberOptions.newBuilder()
@@ -94,13 +102,10 @@ public class myClient {
                     .build();
             client.requestObserver.onNext(joinReq);
 
-            int timeout = 0;
-            while(!client.isRegistered && !client.joinFailed && timeout < 20){
-                Thread.sleep(100);
-                timeout++;
-            }
-
-            if(!client.isRegistered) {
+            boolean receivedResponse = client.joinLatch.await(5, TimeUnit.SECONDS);
+            if (!receivedResponse) {
+                System.out.println("Timeout: Server does not answer.");
+            } else if (client.joinFailed) {
                 System.out.println("Retry with another name...");
             }
         }

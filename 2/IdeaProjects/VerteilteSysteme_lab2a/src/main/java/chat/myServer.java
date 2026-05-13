@@ -79,6 +79,7 @@ public class myServer {
                                             .setText(msg.getText())
                                             .build())
                                     .build();
+
                             clients.forEach((name, observer) -> {
                                 if (!name.equals(currentNickname)) {
                                     observer.onNext(broadcastMsg);
@@ -96,14 +97,16 @@ public class myServer {
 
                 private void handleLeave() {
                     if (currentNickname != null) {
-                        clients.remove(currentNickname);
+                        StreamObserver<MemberOptions> removed = clients.remove(currentNickname);
+                        if(removed != null){
+                            MemberOptions info = MemberOptions.newBuilder()
+                                    .setLeave(LeaveChat.newBuilder().setNickname(currentNickname).build())
+                                    .build();
+                            clients.values().forEach(observer -> observer.onNext(info));
+                            currentNickname = null;
+                        }
                         String text = currentNickname + " has left the chat";
-                        MemberOptions info = MemberOptions.newBuilder()
-                                .setLeave(LeaveChat.newBuilder().setNickname(currentNickname).build())
-                                .build();
-                        clients.values().forEach(observer -> observer.onNext(info));
                         System.out.println(text);
-                        currentNickname = null;
                     }
                 }
 
