@@ -38,20 +38,29 @@ message LeaveChat{
 
 message ChatMsg {
 	string nickname = 1;
-string text = 2;
+	string text = 2;
 }
 
 message NewMember {
-  	string nickname = 1;
+	string nickname = 1;
 }
 
 message MemberList {
-  	repeated NewMember members = 1;
+	repeated NewMember members = 1;
+}
+
+message History {
+	repeated MemberOptions history = 1;
 }
 
 
 service ChatService {
 	rpc GetMemberList(google.protobuf.Empty) returns (MemberList);
 	rpc RegisterStream(stream MemberOptions) returns (stream MemberOptions);
+}
+
+service HistoryService {
+	rpc GetHistory(google.protobuf.Empty) returns (History);
+	rpc RegisterChat(stream MemberOptions) returns (google.protobuf.Empty);
 }
 
