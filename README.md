@@ -63,12 +63,4 @@ Im dritten Versuch wurden verteilte Algorithmen und Prinzipien zur Durchführung
   * Erweiterung des Algorithmus zur Ermittlung der **Top-5-Speicherplatzverbraucher** im Netzwerk[cite: 50].
 
 ---
-
-## Ausführung & Start
-
-* **Labor 1:** Kompilieren und Starten der Peer-Anwendungen mit Übergabe individueller Ports (z. B. mittels Loopback `127.0.0.1`)[cite: 6].
-* **Labor 2:** Nutzen Sie `./gradlew clean build` zum Generieren der Stubs/Skeletons aus den `.proto`-Dateien und starten Sie zuerst den gRPC-Server, gefolgt von den Clients[cite: 23, 27].
-* **Labor 3:** Konfigurieren Sie das Netzwerk in der `mynet.json` und starten Sie das System über den Controller bzw. die Deployment-Skripte[cite: 45, 47].
-
----
 *Erstellt im Rahmen des Praktikums Verteilte Systeme.*
