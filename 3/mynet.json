@@ -1,0 +1,104 @@
+[
+  {
+    "address": "localhost:8001",
+    "storage": 1,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8002",
+                  "localhost:8003",
+                  "localhost:8004"
+                 ]
+  },
+  {
+    "address": "localhost:8002",
+    "storage": 2,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8001",
+                  "localhost:8003",
+                  "localhost:8007",
+                  "localhost:8008"
+                 ]
+  },
+  {
+    "address": "localhost:8003",
+    "storage": 3,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8001",
+                  "localhost:8002",
+                  "localhost:8004",
+                  "localhost:8006",
+                  "localhost:8007"
+                 ]
+  },
+  {
+    "address": "localhost:8004",
+    "storage": 4,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8001",
+                  "localhost:8003",
+                  "localhost:8005",
+                  "localhost:8006"
+                ]
+  },
+  {
+    "address": "localhost:8005",
+    "storage": 5,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8004",
+                  "localhost:8006",
+                  "localhost:8010"
+                ]
+  },
+  {
+    "address": "localhost:8006",
+    "storage": 6,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8003",
+                  "localhost:8004",
+                  "localhost:8005",
+                  "localhost:8007",
+                  "localhost:8010"
+                ]
+  },
+  {
+    "address": "localhost:8007",
+    "storage": 7,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8002",
+                  "localhost:8003",
+                  "localhost:8006",
+                  "localhost:8008",
+                  "localhost:8009",
+                  "localhost:8010"
+                ]
+  },
+  {
+    "address": "localhost:8008",
+    "storage": 8,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8002",
+                  "localhost:8007",
+                  "localhost:8009",
+                  "localhost:8010"
+                ]
+  },
+  {
+    "address": "localhost:8009",
+    "storage": 9,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8007",
+                  "localhost:8008",
+                  "localhost:8010"
+                ]
+  },
+  {
+    "address": "localhost:8010",
+    "storage": 10,
+    "controllerAddress": "localhost:9999",
+    "neighbors": ["localhost:8005",
+                  "localhost:8006",
+                  "localhost:8007",
+                  "localhost:8008",
+                  "localhost:8009"
+                ]
+  }
+]
