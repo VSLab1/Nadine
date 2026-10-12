@@ -64,7 +64,7 @@ Im dritten Versuch wurden verteilte Algorithmen und Prinzipien zur Durchführung
 
 ---
 
-## 🚀 Ausführung & Start
+## Ausführung & Start
 
 * **Labor 1:** Kompilieren und Starten der Peer-Anwendungen mit Übergabe individueller Ports (z. B. mittels Loopback `127.0.0.1`)[cite: 6].
 * **Labor 2:** Nutzen Sie `./gradlew clean build` zum Generieren der Stubs/Skeletons aus den `.proto`-Dateien und starten Sie zuerst den gRPC-Server, gefolgt von den Clients[cite: 23, 27].
